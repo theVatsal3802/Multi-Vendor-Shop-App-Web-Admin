@@ -108,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
             route: ProductScreen.routeName,
           ),
           AdminMenuItem(
-            title: "Upload Banners",
+            title: "Banners",
             icon: Icons.add_photo_alternate,
             route: BannerScreen.routeName,
           ),
