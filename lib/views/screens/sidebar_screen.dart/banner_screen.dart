@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:multivendoradmin/views/screens/sidebar_screen.dart/widgets/banner_widget.dart';
 
 class BannerScreen extends StatefulWidget {
   static const routeName = "/banners";
@@ -31,18 +33,26 @@ class _BannerScreenState extends State<BannerScreen> {
   }
 
   Future<String> uploadBannerToStorage(dynamic image) async {
-    Reference ref = _firebaseStorage.ref().child('Banners').child(fileName!);
+    Reference ref = _firebaseStorage.ref().child('banners').child(fileName!);
     UploadTask uploadTask = ref.putData(image);
     TaskSnapshot snapshot = await uploadTask;
     String imageUrl = await snapshot.ref.getDownloadURL();
     return imageUrl;
   }
 
-  uploadBannerToFirestore() async {
+  Future<void> uploadBannerToFirestore() async {
+    EasyLoading.show();
     if (_image != null) {
       String imageUrl = await uploadBannerToStorage(_image);
-      await _firestore.collection("banners").doc(fileName).set(
-        {"image": imageUrl},
+      await _firestore.collection("banners").doc().set(
+        {"imageUrl": imageUrl},
+      ).whenComplete(
+        () {
+          EasyLoading.dismiss();
+          setState(() {
+            _image = null;
+          });
+        },
       );
     }
   }
@@ -55,7 +65,7 @@ class _BannerScreenState extends State<BannerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Banners",
+            "Upload Banners",
             textScaler: TextScaler.noScaling,
             style: TextStyle(
               fontWeight: FontWeight.w700,
@@ -157,6 +167,16 @@ class _BannerScreenState extends State<BannerScreen> {
             color: Colors.grey,
             thickness: 2,
           ),
+          const Text(
+            "Banners",
+            textScaler: TextScaler.noScaling,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 36,
+            ),
+            textAlign: TextAlign.start,
+          ),
+          const BannerWidget(),
         ],
       ),
     );
